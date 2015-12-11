@@ -30,14 +30,46 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 # Your goal is to write the score method.
 
 def score(dice)
+  # 5 - 50 points
+  # 1 - 100 points
+  # 1x3 - 1000 points
+  # Xx3 - X*100 points
+  # others - 0 points
+  points = 0 
+  tmp_hash= Hash.new 0
+  if !dice.empty?
+
+    dice.each { |x| tmp_hash[x] += 1}
+
+    tmp_hash.each { |key, value|
+      if key==1
+        points+=1000                   if (value-3) >= 0
+        points+=(value-3)*100          if value > 3
+        points+=value*100              if value < 3
+      end
+      if key==5
+        points+=(value-3)*50           if value > 3
+        points+=value*50               if value < 3
+      end
+      if key != 1
+        points+=key*100                if (value-3) >= 0
+      end
+    }
+  end
+
+  return points
+
   # You need to write this method
+  # Еще подумаю как оптимизировать не нравятся проверки =)
 end
 
 class AboutScoringProject < Neo::Koan
   def test_score_of_an_empty_list_is_zero
     assert_equal 0, score([])
   end
-
+  def test_score_of_single_2s_3s_4s_and_6s_are_zero
+    assert_equal 0, score([2,3,4,6])
+  end
   def test_score_of_a_single_roll_of_5_is_50
     assert_equal 50, score([5])
   end
